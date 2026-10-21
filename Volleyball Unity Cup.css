@@ -927,3 +927,81 @@ td.pts,th.pts
     padding: 17px;
   }
 }
+
+
+
+
+
+
+
+/* Live editor controls */
+.editor-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+.editor-section-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font: 600 20px 'Oswald', sans-serif;
+}
+.editor-actions,
+.match-editor-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.team-card .editor-actions {
+  margin-top: 14px;
+  justify-content: flex-start;
+}
+.match-editor-actions {
+  grid-column: 1 / -1;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.match-row {
+  row-gap: 12px;
+}
+.activity-dropdown {
+  margin: -14px 0 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+}
+.activity-dropdown summary {
+  padding: 12px 14px;
+  cursor: pointer;
+  color: var(--blue);
+  font-weight: 600;
+}
+.activity-list {
+  padding: 0 14px 12px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.activity-list p {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-soft);
+  overflow-wrap: anywhere;
+}
+.activity-list strong {
+  color: var(--text);
+}
+.activity-list small {
+  color: var(--muted);
+}
+#unityCupDataStatus:empty {
+  display: none;
+}

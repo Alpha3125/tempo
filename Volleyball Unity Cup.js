@@ -272,6 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("loginPassword").value = "";
       loginMessage.textContent = "";
       renderAccount();
+      await loadUnityCupData();
     } catch (error) {
       loginMessage.textContent =
         "Could not sign in: " + (error.message || "Please try again.");
@@ -301,3 +302,314 @@ document.addEventListener("DOMContentLoaded", function () {
 
   renderAccount();
 });
+
+
+
+
+
+
+/* Unity Cup live data and editor controls */
+let unityCupData = { teams: { A: [], B: [] }, matches: [], standings: { A: [], B: [] } };
+let unityCupDataLoading = false;
+
+async function unityCupRequest(action, fields = {}) {
+  const response = await fetch(UNITY_CUP_API, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action, token: unityCupToken, ...fields })
+  });
+  const text = await response.text();
+  let result;
+  try {
+    result = JSON.parse(text);
+  } catch {
+    throw new Error("The server returned an unreadable response. Check the Apps Script deployment.");
+  }
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || `Request failed (${response.status}).`);
+  }
+  return result;
+}
+
+function cupEscape(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+function cupEditorControls(title, buttonText, buttonId) {
+  return `<div class="editor-section-heading">
+    <h2>${title}</h2>
+    <div class="editor-actions">
+      ${unityCupEditor ? `<button class="account-button" id="${buttonId}">${buttonText}</button>` : ""}
+    </div>
+  </div>`;
+}
+
+
+function renderUnityCupData() {
+  const standings = document.querySelector("#standings .groups-grid");
+  const teams = document.querySelector("#teams .teams-grid");
+  const matches = document.querySelector("#matches .matches-list");
+  if (!standings || !teams || !matches) return;
+
+  // Render standings
+  standings.innerHTML = ["A", "B"].map(group => {
+    const rows = unityCupData.standings?.[group] || [];
+    return `<div class="group-card group-${group.toLowerCase()}">
+      <h2>Group ${group}</h2>
+      <table>
+        <thead>
+          <tr><th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(row => `<tr>
+            <td>${cupEscape(row.team)}</td>
+            <td>${cupEscape(row.mp)}</td>
+            <td>${cupEscape(row.w)}</td>
+            <td>${cupEscape(row.l)}</td>
+            <td class="pts">${cupEscape(row.pts)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+  }).join("");
+
+  // Render team cards
+  const teamCards = ["A", "B"].flatMap(group =>
+    (unityCupData.teams?.[group] || []).map(name => ({ group, name }))
+  );
+
+  teams.innerHTML = teamCards.map(team => `
+    <div class="team-card" data-group="${team.group}">
+      <span class="group-tag">Group ${team.group}</span>
+      <h3>${cupEscape(team.name)}</h3>
+      ${unityCupEditor ? `
+        <div class="editor-actions">
+          <button class="account-button team-delete"
+            data-team="${cupEscape(team.name)}"
+            data-group="${team.group}">Delete</button>
+        </div>` : ""}
+    </div>
+  `).join("");
+
+  // Render match cards
+  matches.innerHTML = (unityCupData.matches || []).map(match => `
+    <div class="match-row">
+      <span class="team team-1">${cupEscape(match.team1)}</span>
+      <div class="sets">
+        <span class="set">${cupEscape(
+          match.score ||
+          [match.date, match.time].filter(Boolean).join(" · ") ||
+          "Not played"
+        )}</span>
+      </div>
+      <span class="team team-2">${cupEscape(match.team2)}</span>
+      ${unityCupEditor ? `
+        <div class="match-editor-actions">
+          <button class="account-button match-edit"
+            data-id="${cupEscape(match.id)}">Edit</button>
+          <button class="account-button match-delete"
+            data-id="${cupEscape(match.id)}">Delete</button>
+        </div>` : ""}
+    </div>
+  `).join("");
+
+  // Remove old headings before inserting new ones
+  document.getElementById("matchesEditorHeading")?.remove();
+  document.getElementById("teamsEditorHeading")?.remove();
+
+  // Add the Teams heading and Add Team button
+  const teamHeading = document.createElement("div");
+  teamHeading.id = "teamsEditorHeading";
+  teamHeading.innerHTML = cupEditorControls(
+    "Teams", "＋ Add team", "addTeamButton"
+  );
+  teams.parentElement.insertBefore(teamHeading, teams);
+
+  // Add the Matches heading and Add Match button
+  const matchHeading = document.createElement("div");
+  matchHeading.id = "matchesEditorHeading";
+  matchHeading.innerHTML = cupEditorControls(
+    "Matches", "＋ Add match", "addMatchButton"
+  );
+  matches.parentElement.insertBefore(matchHeading, matches);
+
+  // Only show Add buttons to signed-in editors
+  document.getElementById("addTeamButton")
+    ?.addEventListener("click", addUnityCupTeam);
+  document.getElementById("addMatchButton")
+    ?.addEventListener("click", addUnityCupMatch);
+
+  // Team deletion
+  document.querySelectorAll(".team-delete").forEach(button => {
+    button.addEventListener("click", () =>
+      deleteUnityCupTeam(button.dataset.team)
+    );
+  });
+
+  // Match editing and deletion
+  document.querySelectorAll(".match-edit").forEach(button => {
+    button.addEventListener("click", () =>
+      editUnityCupMatch(button.dataset.id)
+    );
+  });
+
+  document.querySelectorAll(".match-delete").forEach(button => {
+    button.addEventListener("click", () =>
+      deleteUnityCupMatch(button.dataset.id)
+    );
+  });
+
+  // Preserve existing card animations
+  if (typeof playLanding === "function") playLanding();
+  if (typeof playAssemble === "function") playAssemble();
+}
+
+
+async function loadUnityCupData() {
+  if (unityCupDataLoading) return;
+  unityCupDataLoading = true;
+  try {
+    const result = await unityCupRequest("getData");
+    unityCupData = result;
+    renderUnityCupData();
+    await loadUnityCupActivity();
+  } catch (error) {
+    console.error("Could not load Unity Cup data:", error);
+    showUnityCupMessage("Could not load live data: " + error.message);
+  } finally {
+    unityCupDataLoading = false;
+  }
+}
+
+function showUnityCupMessage(message) {
+  let status = document.getElementById("unityCupDataStatus");
+  if (!status) {
+    status = document.createElement("p");
+    status.id = "unityCupDataStatus";
+    status.className = "login-message";
+    document.querySelector("main")?.prepend(status);
+  }
+  status.textContent = message;
+}
+
+async function refreshUnityCupData(message) {
+  showUnityCupMessage(message || "Updating…");
+  await loadUnityCupData();
+  const status = document.getElementById("unityCupDataStatus");
+  if (status) status.textContent = "Data updated.";
+}
+
+async function addUnityCupTeam() {
+  const name = prompt("Enter the new team name:");
+  if (!name?.trim()) return;
+  const group = prompt("Which group? Enter A or B:", "A")?.trim().toUpperCase();
+  if (!["A", "B"].includes(group)) {
+    alert("Group must be A or B.");
+    return;
+  }
+  try {
+    await unityCupRequest("addTeam", { name: name.trim(), group });
+    await refreshUnityCupData("Team added.");
+  } catch (error) {
+    alert("Could not add team: " + error.message);
+  }
+}
+
+async function deleteUnityCupTeam(name) {
+  if (!confirm(`Delete team "${name}"? This cannot be undone. Teams referenced by matches cannot be deleted.`)) return;
+  try {
+    await unityCupRequest("deleteTeam", { name });
+    await refreshUnityCupData("Team deleted.");
+  } catch (error) {
+    alert("Could not delete team: " + error.message);
+  }
+}
+
+async function addUnityCupMatch() {
+  const teams = ["A", "B"].flatMap(group => unityCupData.teams[group] || []);
+  if (teams.length < 2) {
+    alert("Add at least two teams before creating a match.");
+    return;
+  }
+  const team1 = prompt("Team 1:\n" + teams.join(", "));
+  if (!team1) return;
+  const team2 = prompt("Team 2:\n" + teams.join(", "));
+  if (!team2) return;
+  const date = prompt("Date (YYYY-MM-DD), or leave blank:");
+  if (date === null) return;
+  const time = prompt("Time (HH:MM), or leave blank:");
+  if (time === null) return;
+  const score = prompt("Set scores, e.g. 25-22, 26-24. Leave blank if not played:");
+  if (score === null) return;
+  try {
+    await unityCupRequest("addMatch", {
+      team1: team1.trim(), team2: team2.trim(),
+      date: date.trim(), time: time.trim(), score: score.trim()
+    });
+    await refreshUnityCupData("Match added.");
+  } catch (error) {
+    alert("Could not add match: " + error.message);
+  }
+}
+
+async function editUnityCupMatch(id) {
+  const match = unityCupData.matches.find(item => String(item.id) === String(id));
+  if (!match) return alert("Could not find that match. Refresh and try again.");
+  const team1 = prompt("Team 1:", match.team1);
+  if (team1 === null) return;
+  const team2 = prompt("Team 2:", match.team2);
+  if (team2 === null) return;
+  const date = prompt("Date (YYYY-MM-DD):", match.date || "");
+  if (date === null) return;
+  const time = prompt("Time (HH:MM):", match.time || "");
+  if (time === null) return;
+  const score = prompt("Set scores (e.g. 25-22, 26-24):", match.score || "");
+  if (score === null) return;
+  try {
+    await unityCupRequest("updateMatch", {
+      id, team1: team1.trim(), team2: team2.trim(),
+      date: date.trim(), time: time.trim(), score: score.trim()
+    });
+    await refreshUnityCupData("Match updated.");
+  } catch (error) {
+    alert("Could not update match: " + error.message);
+  }
+}
+
+async function deleteUnityCupMatch(id) {
+  if (!confirm("Delete this match? This cannot be undone.")) return;
+  try {
+    await unityCupRequest("deleteMatch", { id });
+    await refreshUnityCupData("Match deleted.");
+  } catch (error) {
+    alert("Could not delete match: " + error.message);
+  }
+}
+
+async function loadUnityCupActivity() {
+  if (!unityCupToken) return;
+  try {
+    const result = await unityCupRequest("getActivity");
+    let details = document.getElementById("unityCupActivity");
+    if (!details) {
+      details = document.createElement("details");
+      details.id = "unityCupActivity";
+      details.className = "activity-dropdown";
+      document.querySelector(".account-bar")?.after(details);
+    }
+    details.innerHTML = `<summary>Recent editor activity</summary>
+      <div class="activity-list">${(result.activity || []).map(item => `
+        <p><strong>${cupEscape(item.name || item.email)}</strong>
+        ${cupEscape(item.action)} ${cupEscape(item.target)}
+        <small>${cupEscape(item.at)}</small></p>`).join("") || "<p>No activity recorded yet.</p>"}</div>`;
+  } catch (error) {
+    console.warn("Could not load editor activity:", error);
+  }
+}
+
+/* Load public data when the page opens. */
+document.addEventListener("DOMContentLoaded", loadUnityCupData);
+
