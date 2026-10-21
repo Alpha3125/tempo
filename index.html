@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +14,6 @@
       <p class="eyebrow">Outdoor Volleyball</p>
       <h1>Volleyball Unity Cup 2026</h1>
       <p class="subhead">Two groups, one cup. Follow the standings, catch every match, and meet the teams.</p>
-
     </header>
 
     <div class="account-bar">
@@ -21,7 +21,7 @@
         <span class="status-dot"></span>
         <span id="accountMessage">Viewing as guest</span>
       </div>
-      <button id="signInButton" class="account-button">Editor Sign In</button>
+      <button id="signInButton" class="account-button" type="button">Editor Sign In</button>
       <button id="signOutButton" class="account-button hidden" type="button">Sign Out</button>
     </div>
 
@@ -40,40 +40,50 @@
       </form>
     </div>
 
-    <nav class="tabs">
-
-      <button class="tab active" data-tab="standings">Standings</button>
-      <button class="tab" data-tab="matches">Matches</button>
-      <button class="tab" data-tab="teams">Teams</button>
+    <nav class="tabs" aria-label="Tournament sections">
+      <button class="tab active" data-tab="standings" type="button">Standings</button>
+      <button class="tab" data-tab="matches" type="button">Matches</button>
+      <button class="tab" data-tab="teams" type="button">Teams</button>
     </nav>
+
     <main>
       <section id="standings" class="panel">
         <div class="groups-grid">
           <div class="group-card group-a">
             <h2>Group A</h2>
             <table>
-              <tr>
-                <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
-              </tr>
-              <tr><td>B25 A</td><td>2</td><td>2</td><td>0</td><td class="pts">6</td></tr>
-              <tr><td>B23</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
-              <tr><td>PhD</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
+              <thead>
+                <tr>
+                  <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
+                </tr>
+              </thead>
+              <tbody id="standingsA">
+                <tr><td>B25 A</td><td>2</td><td>2</td><td>0</td><td class="pts">6</td></tr>
+                <tr><td>B23</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
+                <tr><td>PhD</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
+              </tbody>
             </table>
           </div>
+
           <div class="group-card group-b">
             <h2>Group B</h2>
             <table>
-              <tr>
-                <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
-              </tr>
-              <tr><td>B25 B</td><td>3</td><td>2</td><td>1</td><td class="pts">6</td></tr>
-              <tr><td>B24</td><td>1</td><td>1</td><td>0</td><td class="pts">3</td></tr>
-              <tr><td>B26</td><td>2</td><td>1</td><td>1</td><td class="pts">3</td></tr>
-              <tr><td>B22</td><td>2</td><td>0</td><td>2</td><td class="pts">0</td></tr>
+              <thead>
+                <tr>
+                  <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
+                </tr>
+              </thead>
+              <tbody id="standingsB">
+                <tr><td>B25 B</td><td>3</td><td>2</td><td>1</td><td class="pts">6</td></tr>
+                <tr><td>B24</td><td>1</td><td>1</td><td>0</td><td class="pts">3</td></tr>
+                <tr><td>B26</td><td>2</td><td>1</td><td>1</td><td class="pts">3</td></tr>
+                <tr><td>B22</td><td>2</td><td>0</td><td>2</td><td class="pts">0</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
       </section>
+
       <section id="matches" class="panel hidden">
         <div class="fusion-overlay" id="fusionOverlay" aria-hidden="true">
           <div class="backdrop"></div>
@@ -83,7 +93,14 @@
           <svg class="lightning-svg" aria-hidden="true"></svg>
           <span class="burst"></span>
         </div>
-        <div class="matches-list">
+
+        <div id="matchEditorToolbar" class="editor-toolbar hidden">
+          <button id="addMatchButton" class="account-button" type="button">+ Add Match</button>
+        </div>
+
+        <div id="matchFormContainer" class="inline-editor-container hidden"></div>
+
+        <div class="matches-list" id="matchesList">
           <div class="match-row">
             <span class="team team-1">B25 B</span>
             <div class="sets">
@@ -92,6 +109,7 @@
             </div>
             <span class="team team-2">B26</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">PhD</span>
             <div class="sets">
@@ -100,6 +118,7 @@
             </div>
             <span class="team team-2">B25 A</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">B25 A</span>
             <div class="sets">
@@ -108,6 +127,7 @@
             </div>
             <span class="team team-2">B23</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">B24</span>
             <div class="sets">
@@ -116,6 +136,7 @@
             </div>
             <span class="team team-2">B25 B</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">B26</span>
             <div class="sets">
@@ -124,6 +145,7 @@
             </div>
             <span class="team team-2">B22</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">B22</span>
             <div class="sets">
@@ -132,6 +154,7 @@
             </div>
             <span class="team team-2">B25 B</span>
           </div>
+
           <div class="match-row">
             <span class="team team-1">B23</span>
             <div class="sets">
@@ -141,22 +164,52 @@
           </div>
         </div>
       </section>
+
       <section id="teams" class="panel hidden">
-        <div class="teams-grid">
-          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>B25 A</h3></div>
-          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>B23</h3></div>
-          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>PhD</h3></div>
-          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B22</h3></div>
-          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B24</h3></div>
-          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B25 B</h3></div>
-          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B26</h3></div>
+        <div id="teamEditorToolbar" class="editor-toolbar hidden">
+          <button id="addTeamButton" class="account-button" type="button">+ Add Team</button>
+        </div>
+
+        <div id="teamFormContainer" class="inline-editor-container hidden"></div>
+
+        <div class="teams-grid" id="teamsGrid">
+          <div class="team-card" data-group="A">
+            <span class="group-tag">Group A</span>
+            <h3>B25 A</h3>
+          </div>
+          <div class="team-card" data-group="A">
+            <span class="group-tag">Group A</span>
+            <h3>B23</h3>
+          </div>
+          <div class="team-card" data-group="A">
+            <span class="group-tag">Group A</span>
+            <h3>PhD</h3>
+          </div>
+          <div class="team-card" data-group="B">
+            <span class="group-tag">Group B</span>
+            <h3>B22</h3>
+          </div>
+          <div class="team-card" data-group="B">
+            <span class="group-tag">Group B</span>
+            <h3>B24</h3>
+          </div>
+          <div class="team-card" data-group="B">
+            <span class="group-tag">Group B</span>
+            <h3>B25 B</h3>
+          </div>
+          <div class="team-card" data-group="B">
+            <span class="group-tag">Group B</span>
+            <h3>B26</h3>
+          </div>
         </div>
       </section>
     </main>
   </div>
+
   <footer class="site-footer">
     <p>Created by <span class="credit-name">Suryaditya Das</span><span class="credit-batch">B25</span></p>
   </footer>
+
   <script src="Volleyball Unity Cup.js"></script>
 </body>
 </html>
