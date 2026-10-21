@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volleyball Unity Cup 2026</title>
+  <link rel="stylesheet" href="Volleyball Unity Cup.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <div class="iris" aria-hidden="true"><span class="core"></span></div>
+      <p class="eyebrow">Outdoor Volleyball</p>
+      <h1>Volleyball Unity Cup 2026</h1>
+      <p class="subhead">Two groups, one cup. Follow the standings, catch every match, and meet the teams.</p>
+
+    </header>
+
+    <div class="account-bar">
+      <div class="account-status">
+        <span class="status-dot"></span>
+        <span id="accountMessage">Viewing as guest</span>
+      </div>
+      <button id="signInButton" class="account-button">Editor Sign In</button>
+      <button id="signOutButton" class="account-button hidden" type="button">Sign Out</button>
+    </div>
+
+    <div id="loginPanel" class="login-panel hidden">
+      <h2>Editor Access</h2>
+      <p>Sign in to manage teams and matches.</p>
+      <form id="loginForm">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" name="email" type="email" autocomplete="username" required>
+
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+
+        <button id="loginSubmit" class="account-button" type="submit">Sign In</button>
+        <p id="loginMessage" class="login-message" role="status"></p>
+      </form>
+    </div>
+
+    <nav class="tabs">
+
+      <button class="tab active" data-tab="standings">Standings</button>
+      <button class="tab" data-tab="matches">Matches</button>
+      <button class="tab" data-tab="teams">Teams</button>
+    </nav>
+    <main>
+      <section id="standings" class="panel">
+        <div class="groups-grid">
+          <div class="group-card group-a">
+            <h2>Group A</h2>
+            <table>
+              <tr>
+                <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
+              </tr>
+              <tr><td>B25 A</td><td>2</td><td>2</td><td>0</td><td class="pts">6</td></tr>
+              <tr><td>B23</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
+              <tr><td>PhD</td><td>1</td><td>0</td><td>1</td><td class="pts">0</td></tr>
+            </table>
+          </div>
+          <div class="group-card group-b">
+            <h2>Group B</h2>
+            <table>
+              <tr>
+                <th>Team</th><th>MP</th><th>W</th><th>L</th><th class="pts">PTS</th>
+              </tr>
+              <tr><td>B25 B</td><td>3</td><td>2</td><td>1</td><td class="pts">6</td></tr>
+              <tr><td>B24</td><td>1</td><td>1</td><td>0</td><td class="pts">3</td></tr>
+              <tr><td>B26</td><td>2</td><td>1</td><td>1</td><td class="pts">3</td></tr>
+              <tr><td>B22</td><td>2</td><td>0</td><td>2</td><td class="pts">0</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="matches" class="panel hidden">
+        <div class="fusion-overlay" id="fusionOverlay" aria-hidden="true">
+          <div class="backdrop"></div>
+          <span class="orb orb-blue"></span>
+          <span class="orb orb-red"></span>
+          <span class="shockwave"></span>
+          <svg class="lightning-svg" aria-hidden="true"></svg>
+          <span class="burst"></span>
+        </div>
+        <div class="matches-list">
+          <div class="match-row">
+            <span class="team team-1">B25 B</span>
+            <div class="sets">
+              <span class="set">25<span class="dash">–</span>22</span>
+              <span class="set">26<span class="dash">–</span>24</span>
+            </div>
+            <span class="team team-2">B26</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">PhD</span>
+            <div class="sets">
+              <span class="set">23<span class="dash">–</span>25</span>
+              <span class="set">22<span class="dash">–</span>25</span>
+            </div>
+            <span class="team team-2">B25 A</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">B25 A</span>
+            <div class="sets">
+              <span class="set">25<span class="dash">–</span>20</span>
+              <span class="set">25<span class="dash">–</span>23</span>
+            </div>
+            <span class="team team-2">B23</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">B24</span>
+            <div class="sets">
+              <span class="set">25<span class="dash">–</span>16</span>
+              <span class="set">25<span class="dash">–</span>13</span>
+            </div>
+            <span class="team team-2">B25 B</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">B26</span>
+            <div class="sets">
+              <span class="set">25<span class="dash">–</span>7</span>
+              <span class="set">25<span class="dash">–</span>13</span>
+            </div>
+            <span class="team team-2">B22</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">B22</span>
+            <div class="sets">
+              <span class="set">20<span class="dash">–</span>25</span>
+              <span class="set">10<span class="dash">–</span>25</span>
+            </div>
+            <span class="team team-2">B25 B</span>
+          </div>
+          <div class="match-row">
+            <span class="team team-1">B23</span>
+            <div class="sets">
+              <span class="set">This Thursday at 21:00</span>
+            </div>
+            <span class="team team-2">PhD</span>
+          </div>
+        </div>
+      </section>
+      <section id="teams" class="panel hidden">
+        <div class="teams-grid">
+          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>B25 A</h3></div>
+          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>B23</h3></div>
+          <div class="team-card" data-group="A"><span class="group-tag">Group A</span><h3>PhD</h3></div>
+          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B22</h3></div>
+          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B24</h3></div>
+          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B25 B</h3></div>
+          <div class="team-card" data-group="B"><span class="group-tag">Group B</span><h3>B26</h3></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <p>Created by <span class="credit-name">Suryaditya Das</span><span class="credit-batch">B25</span></p>
+  </footer>
+  <script src="Volleyball Unity Cup.js"></script>
+</body>
+</html>
